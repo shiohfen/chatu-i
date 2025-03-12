@@ -7,7 +7,7 @@ export async function GET() {
     const client = await connectToDatabase();
     const db = client.db("chatui");
 
-    const messages = await db.collection("chat-messages").find({})
+    const messages = await db.collection("chat-list").find({})
       .toArray();
 
     return NextResponse.json(messages, { status: 200 });
@@ -26,7 +26,7 @@ export async function POST(req) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const result = await db.collection("chat-messages").insertOne({
+    const result = await db.collection("chat-list").insertOne({
       message,
       sender,
       receiver,

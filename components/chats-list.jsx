@@ -1,9 +1,8 @@
 "use client";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { MessageCirclePlus } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Modal,
     ModalBody,
@@ -12,26 +11,28 @@ import {
     ModalTrigger,
 } from "@/components/ui/animated-modal";
 import { motion } from "framer-motion";
+import { UserButton } from "@clerk/nextjs";
 
-// Mock data - replace with actual data fetching later
-const mockChats = [
-    { id: 1, username: 'Alice', lastMessage: 'Hey, how are you?', avatar: 'https://picsum.photos/seed/1/200', time: '2m', online: true },
-    { id: 2, username: 'Bob', lastMessage: 'Meeting at 3 PM', avatar: 'https://picsum.photos/seed/2/200', time: '10m', online: false },
-    // Add more mock chats as needed
-];
 
-export function ChatsList() {
+export function ChatsList({alluser}) {
+
+    console.log("here",alluser)
     const [searchTerm, setSearchTerm] = useState('');
-    const [chats, setChats] = useState(mockChats);
+    const [chats, setChats] = useState([]);
+
+
+    useEffect(() => {
+        setChats(alluser);
+    }, [alluser]);
 
     const handleSearch = (e) => {
         const term = e.target.value;
         setSearchTerm(term);
 
         // Filter chats based on username or last message
-        const filteredChats = mockChats.filter(chat =>
-            chat.username.toLowerCase().includes(term.toLowerCase()) ||
-            chat.lastMessage.toLowerCase().includes(term.toLowerCase())
+        const filteredChats = chats.filter(chat =>
+            chat.firstName.toLowerCase().includes(term.toLowerCase()) ||
+            chat.lastName.toLowerCase().includes(term.toLowerCase())
         );
 
         setChats(filteredChats);
@@ -42,7 +43,7 @@ export function ChatsList() {
         console.log('Create new chat');
     };
 
-    const images = [
+    const modalImages = [
         "https://picsum.photos/600/600?random=1",
         "https://picsum.photos/600/600?random=2",
         "https://picsum.photos/600/600?random=3",
@@ -50,9 +51,9 @@ export function ChatsList() {
     ];
 
     return (
-        <div className="col-span-1 border-r border-muted p-4 bg-muted/30">
-            <div className="mb-4">
-                <h3 className="font-bold text-xl pb-2 border-b border-muted">Chats</h3>
+        <div className="flex flex-col col-span-1 border-r border-muted bg-muted/30">
+            <div className="px-4">
+                <h3 className="font-bold text-xl py-2 border-b border-muted">Chats</h3>
                 <div className="flex items-center gap-2 my-4">
                     <Input
                         type="text"
@@ -81,7 +82,7 @@ export function ChatsList() {
                                     now! ✈️
                                 </h4>
                                 <div className="flex justify-center items-center">
-                                    {images.map((image, idx) => (
+                                    {modalImages.map((image, idx) => (
                                         <motion.div
                                             key={"images" + idx}
                                             style={{
@@ -128,37 +129,47 @@ export function ChatsList() {
                 </div>
             </div>
             {/* Chat List Scrollable Area */}
-            <div className="space-y-2 overflow-y-auto max-h-[calc(100vh-8.7rem)]">
-                {chats.map((chat) => (
+            <div className="space-y-2 overflow-y-auto px-4 h-[calc(100vh-11.6rem)]">
+                {alluser && chats.map((chat) => (
                     <div
                         key={chat.id}
                         className="bg-muted hover:bg-gray-800 rounded-lg p-3 flex items-center gap-3 cursor-pointer"
                     >
-                        <div className="relative">
+                        <div className="relative px-2">
                             <Image
-                                src={chat.avatar}
-                                alt={`${chat.username}'s avatar`}
+                                src={chat.imageUrl}
+                                alt={`${chat.firstName}'s avatar`}
                                 width={48}
                                 height={48}
-                                className="w-12 h-12 rounded-full object-cover"
+                                className="scale-125 rounded-full object-cover"
                             />
-                            {chat.online && (
+                            {chat.online ? (
                                 <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+                            ): (
+                                <div className="absolute bottom-0 right-0 w-3 h-3 bg-gray-500 rounded-full border-2 border-white" />
                             )}
                         </div>
                         <div className="flex-grow overflow-hidden">
-                            <h4 className="font-semibold text-gray-300 truncate">{chat.username}</h4>
+                            <h4 className="font-semibold text-gray-300 truncate">{chat.firstName} {chat.lastName}</h4>
                             <p className="text-sm text-muted-foreground truncate">
-                                {chat.lastMessage}
+                                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Expedita officiis minima accusamus.
                             </p>
                         </div>
-                        <span className="text-xs text-muted-foreground">{chat.time}</span>
+                        <span className="text-xs text-muted-foreground">{chat.lastActiveAt}</span>
                     </div>
                 ))}
                 {chats.length === 0 && (
                     <p className="text-center text-muted-foreground">No chats found</p>
                 )}
             </div>
+            <div className="flex items-center justify-between px-4 pt-4 border-t border-muted">
+                <div className="flex items-center gap-2">
+                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"></div><div className="grid flex-1 text-left text-sm leading-tight"><span className="truncate font-semibold">Chat U &amp; I</span></div>
+                </div>
+                <div>
+                    <UserButton />
+                </div>
+            </div>
         </div>
     );
-}
+}   
