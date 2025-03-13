@@ -13,13 +13,10 @@ import {
 import { motion } from "framer-motion";
 import { UserButton } from "@clerk/nextjs";
 
+export function ChatList({alluser, onSelectChat}) {
 
-export function ChatsList({alluser}) {
-
-    console.log("here",alluser)
     const [searchTerm, setSearchTerm] = useState('');
     const [chats, setChats] = useState([]);
-
 
     useEffect(() => {
         setChats(alluser);
@@ -41,6 +38,13 @@ export function ChatsList({alluser}) {
     const handleNewChat = () => {
         // TODO: Implement new chat creation logic
         console.log('Create new chat');
+    };
+
+    const handleChatSelect = (chat) => {
+        onSelectChat({
+            receiverId: chat.id,
+            receiverName: `${chat.firstName} ${chat.lastName}`,
+        });
     };
 
     const modalImages = [
@@ -134,6 +138,7 @@ export function ChatsList({alluser}) {
                     <div
                         key={chat.id}
                         className="bg-muted hover:bg-gray-800 rounded-lg p-3 flex items-center gap-3 cursor-pointer"
+                        onClick={() => handleChatSelect(chat)}
                     >
                         <div className="relative px-2">
                             <Image
