@@ -13,7 +13,7 @@ import {
 import { motion } from "framer-motion";
 import { UserButton } from "@clerk/nextjs";
 
-export function ChatList({alluser, onSelectChat}) {
+export function ChatList({ alluser, onSelectChat }) {
 
     const [searchTerm, setSearchTerm] = useState('');
     const [chats, setChats] = useState([]);
@@ -33,11 +33,6 @@ export function ChatList({alluser, onSelectChat}) {
         );
 
         setChats(filteredChats);
-    };
-
-    const handleNewChat = () => {
-        // TODO: Implement new chat creation logic
-        console.log('Create new chat');
     };
 
     const handleChatSelect = (chat) => {
@@ -70,8 +65,7 @@ export function ChatList({alluser, onSelectChat}) {
                     <Modal>
                         <ModalTrigger
                             variant="outline"
-                            size="icon"
-                            onClick={handleNewChat}>
+                            size="icon">
                             <MessageCirclePlus />
                         </ModalTrigger>
                         <ModalBody>
@@ -112,6 +106,16 @@ export function ChatList({alluser, onSelectChat}) {
                                         </motion.div>
                                     ))}
                                 </div>
+
+                                <div className="flex items-center justify-center">
+                                    <Input
+                                        type="text"
+                                        placeholder="Search Users"
+                                        className="flex-grow"
+                                        value={searchTerm}
+                                        onChange={handleSearch}
+                                    />
+                                </div>
                                 <div
                                     className="py-10 flex flex-wrap gap-x-4 gap-y-6 items-start justify-start max-w-sm mx-auto">
                                     Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eos doloremque labore odit laborum ducimus velit iusto! Facilis, officia sapiente nesciunt corporis commodi, dignissimos eum consequuntur eos maxime, doloremque suscipit neque.
@@ -150,7 +154,7 @@ export function ChatList({alluser, onSelectChat}) {
                             />
                             {chat.online ? (
                                 <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
-                            ): (
+                            ) : (
                                 <div className="absolute bottom-0 right-0 w-3 h-3 bg-gray-500 rounded-full border-2 border-white" />
                             )}
                         </div>

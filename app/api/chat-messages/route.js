@@ -2,13 +2,21 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { NextResponse } from "next/server";
 
 // GET all movies & POST a new movie
-export async function GET(req,res) {
+export async function GET(req) {
+  const { searchParams } = new URL(req.url);
+  const receiverId = searchParams.get("receiverId");
+  const senderId = searchParams.get("senderId");
+
   try {
     const client = await connectToDatabase();
     const db = client.db("chatui");
 
-    const messages = await db.collection("chat-messages").find({})
-      .toArray();
+    const messages = await db.collection("chat-messages").find({
+      $or: [
+        { sender: senderId, receiver: receiverId },
+        { sender: receiverId, receiver: senderId },
+      ],
+    }).toArray();
 
     return NextResponse.json(messages, { status: 200 });
   } catch (error) {

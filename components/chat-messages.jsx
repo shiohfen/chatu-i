@@ -7,31 +7,25 @@ import { Send, Paperclip, Smile, LoaderCircle, Phone, Video, MoreVertical } from
 import useSWR from "swr";
 import { useAuth } from '@clerk/clerk-react';
 
-const formatMessageTime = (timestamp) => {
-    console.log(timestamp);
-    const date = new Date(timestamp);
-    const now = new Date();
 
-    if (date.toDateString() === now.toDateString()) {
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-
-    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    if (date > weekAgo) {
-        return date.toLocaleDateString([], { weekday: 'short' });
-    }
-
-    return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
-};
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export function ChatMessages({ receiverId, receiverName }) {
+    const formatMessageTime = (timestamp) => {
+        const date = new Date(timestamp);
+        const now = new Date();
+    
+        if (date.toDateString() === now.toDateString()) {
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+    
+        return date.toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    };
+
     const { userId, isLoaded } = useAuth();
-    const { data, mutate, error, isLoading } = useSWR("/api/chat-messages", fetcher);
-    data?.forEach(msg => {
-        msg.timestamp = formatMessageTime(msg.timestamp);
-    });
+    const { data, mutate, error, isLoading } = useSWR(receiverId && userId ? `/api/chat-messages?receiverId=${receiverId}&senderId=${userId}` : null, fetcher);
+
     const [newMessage, setNewMessage] = useState('');
     const messagesEndRef = useRef(null);
 
@@ -102,7 +96,7 @@ export function ChatMessages({ receiverId, receiverName }) {
                             )}
                             <div className="flex flex-col max-w-[70%]">
                                 <div className={`p-3 rounded-xl ${msg.sender === userId ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>{msg.message}</div>
-                                <div className={`text-xs text-gray-500 mt-1 ${msg.sender === userId ? 'text-right' : 'text-left'}`}>{msg.timestamp}</div>
+                                <div className={`text-xs text-gray-500 mt-1 ${msg.sender === userId ? 'text-right' : 'text-left'}`}>{formatMessageTime(msg.timestamp)}</div>
                             </div>
                         </div>
                     ))}
